@@ -14,7 +14,7 @@ choose_params_file() {
     local files=(configs/*)
     for i in "${!files[@]}"; do
         local filename=$(basename "${files[i]}")
-        local comment=$(sed -n '1s/^# *//p' "${files[i]}")  # Extract and remove leading '#' from comment
+        local comment=$(sed -n '1s/^# *//p' "${files[i]}") # Extract and remove leading '#' from comment
         options+=("$comment")
         echo -e "[$i] ${bold_blue}$comment${reset}"
     done
@@ -39,7 +39,7 @@ choose_params_file() {
 # Function to read parameters from an external file
 read_params() {
     if [ -f "$params_file" ]; then
-        mapfile -t params < <(sed '/^#/d' "$params_file")  # Ignore lines starting with #
+        mapfile -t params < <(sed '/^#/d' "$params_file") # Ignore lines starting with #
     else
         echo "Parameter file '$params_file' not found."
         exit 1
@@ -64,8 +64,6 @@ create_field() {
 
     echo "$value"
 }
-
-
 
 generate_config() {
     local config=""

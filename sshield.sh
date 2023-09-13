@@ -16,7 +16,7 @@ choose_params_file() {
     done
 
     echo -e ""
-    read -p "Select the option you want: " choice
+    read -p "Select the option you want (0/1) > " choice
     echo -e ""
 
     if [[ ! $choice =~ ^[0-9]+$ ]] || ((choice < 0 || choice >= ${#options[@]})); then
@@ -52,7 +52,7 @@ create_field() {
 
     echo -e "${bold_blue}${param_name}${reset}: ${param_comment}" >&2
     echo -e "Recommended value: ${bold_green}${param_recommendation}${reset}" >&2
-    read -p "Enter your preferred value for ${param_name}: " -r value
+    read -p "Enter your preferred value for ${param_name} > " -r value
 
     if [ -z "$value" ]; then
         value="$param_recommendation"
@@ -112,7 +112,7 @@ main() {
     echo -e "${bold_green}$config${reset}"
     echo -e "Configuration saved to ${bold_blue}sshd_config_generated.txt${reset}"
 
-    read -p "Do you want to overwrite /etc/ssh/sshd_config and restart SSH? (y/n): " -r choice
+    read -p "Do you want to overwrite /etc/ssh/sshd_config and restart SSH? (y/n) > " -r choice
     if [[ $choice =~ ^[Yy]$ ]]; then
         sudo cp sshd_config_generated.txt /etc/ssh/sshd_config
         restart_ssh

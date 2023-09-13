@@ -5,18 +5,29 @@ bold_blue="\e[1;34m"
 bold_green="\e[1;32m"
 reset="\e[0m"
 
+#!/bin/bash
+
+# Define color variables
+bold_blue="\e[1;34m"
+bold_green="\e[1;32m"
+reset="\e[0m"
+
 # Select params file
 choose_params_file() {
-    local options=("ANSSI: French Security Agency Recommendations" "CIS: Center for Internet Security Recommendations")
+    local options=()
     local choice
 
     echo -e "Parameters available:"
-    for i in "${!options[@]}"; do
-        echo -e "[$i] ${bold_blue}${options[i]%%:*}${reset} -${options[i]#*:}"
+    local files=(configs/*)
+    for i in "${!files[@]}"; do
+        local filename=$(basename "${files[i]}")
+        local comment=$(sed -n '1s/^# *//p' "${files[i]}")  # Extract and remove leading '#' from comment
+        options+=("$comment")
+        echo -e "[$i] ${bold_blue}$comment${reset}"
     done
 
     echo -e ""
-    read -p "Select the option you want (0/1) > " choice
+    read -p "Select the option you want > " choice
     echo -e ""
 
     if [[ ! $choice =~ ^[0-9]+$ ]] || ((choice < 0 || choice >= ${#options[@]})); then
@@ -24,7 +35,7 @@ choose_params_file() {
         exit 1
     fi
 
-    params_file="configs/${options[choice]%%:*}"
+    params_file="${files[choice]}"
 
     if [ ! -f "$params_file" ]; then
         echo "Parameter file '$params_file' not found..."
@@ -35,7 +46,7 @@ choose_params_file() {
 # Function to read parameters from an external file
 read_params() {
     if [ -f "$params_file" ]; then
-        mapfile -t params <"$params_file"
+        mapfile -t params < <(sed '/^#/d' "$params_file")  # Ignore lines starting with #
     else
         echo "Parameter file '$params_file' not found."
         exit 1

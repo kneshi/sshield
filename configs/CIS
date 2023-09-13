@@ -1,2 +1,0 @@
-Port:Specifies the port number that sshd listens on.:22
-Protocol:Specifies the protocol versions sshd supports.:2

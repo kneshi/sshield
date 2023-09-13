@@ -25,3 +25,4 @@ Optionally, you can choose to overwrite `/etc/ssh/sshd_config` and restart the S
 
 - [ ] populate configs files
 - [ ] test /usr/sbin/sshd -t -f
+- [ ] set mode and ownership on the sshd_config file if pushed to prod (root:root and 0600)

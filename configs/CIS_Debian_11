@@ -1,0 +1,9 @@
+# CIS : Center for Internet Security - Debian 11
+Port:1. Specifies the port number that sshd listens on.:8080
+Protocol:2. Specifies the protocol versions sshd supports.:22
+Port:Specifies the port number that sshd listens on.:22
+Protocol:Specifies the protocol versions sshd supports.:2
+Port:Specifies the port number that sshd listens on.:22
+Protocol:Specifies the protocol versions sshd supports.:2
+Port:Specifies the port number that sshd listens on.:22
+Protocol:Specifies the protocol versions sshd supports.:2

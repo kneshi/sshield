@@ -9,8 +9,8 @@ This script generate an SSH server configuration based on recommendations from e
 
 ## Parameter Sets
 
-- ANSSI: French Security Agency Recommendations
-- CIS: Center for Internet Security Recommendations
+- ANSSI: [French Security Agency Recommendations](https://www.ssi.gouv.fr/guide/recommandations-pour-un-usage-securise-dopenssh/)
+- CIS Debian 11: [Center for Internet Security Recommendations - Debian 11](https://downloads.cisecurity.org/#/)
 
 ## How It Works
 

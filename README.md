@@ -24,5 +24,7 @@ Optionally, you can choose to overwrite `/etc/ssh/sshd_config` and restart the S
 ## Todo
 
 - [ ] populate configs files
+- [x] add an options to skip and go to next 
 - [ ] test /usr/sbin/sshd -t -f
 - [ ] set mode and ownership on the sshd_config file if pushed to prod (root:root and 0600)
+- [ ] add a mandatory options to be sure we don't forget a parameters

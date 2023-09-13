@@ -1,3 +1,22 @@
 # ANSSI : Agence nationale de la sécurité des systèmes d'information
-Port:1. Specifies the port number that sshd listens on.:8080
-Protocol:2. Specifies the protocol versions sshd supports.:22
+StrictHostKeyChecking: Prompt user for host key validation: ask
+StrictModes: Verify file modes and permissions: yes
+Ciphers: Supported encryption ciphers: aes256-ctr, aes192-ctr, aes128-ctr
+MACs: Supported message authentication codes: hmac-sha2-512-etm, hmac-sha2-256-etm, hmac-sha1-etm
+MACs: Supported message authentication codes for older versions: hmac-sha2-512, hmac-sha2-256, hmac-sha1
+UsePrivilegeSeparation: Enable privilege separation with sandboxing: sandbox
+Match group sftp-users: Match users in 'sftp-users' group for SFTP access
+ForceCommand: Force use of internal-sftp for SFTP
+ChrootDirectory: Set chroot directory to /sftp-home/%u
+PermitEmptyPasswords: Allow empty passwords: no
+MaxAuthTries: Maximum authentication attempts per connection: 2
+LoginGraceTime: Timeframe for authentication (seconds): 30
+PermitRootLogin: Allow remote access for root: no
+PrintLastLog: Display last login details: yes
+PermitUserEnvironment: Allow user environment modifications through sshd: no
+AcceptEnv: List of user-alterable environment variables
+ListenAddress: Listening address and port: A.B.C.D:26
+AllowTcpForwarding: Enable or disable server-side forwarding: no
+X11Forwarding: Enable or disable X11 forwarding: no
+ForwardX11Trusted: Enable or disable trusted X11 forwarding: no
+VerifyHostKeyDNS: Perform DNS fingerprint validation for ssh client: ask

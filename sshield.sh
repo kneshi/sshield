@@ -65,13 +65,16 @@ create_field() {
     echo "$value"
 }
 
-# Function to generate the configuration
+
+
 generate_config() {
     local config=""
     config+="Include /etc/ssh/sshd_config.d/*.conf\n\n"
     for param_info in "${params[@]}"; do
         local value=$(create_field "$param_info")
-        config+="$(echo "$param_info" | cut -d ':' -f 1) $value\n"
+        if [ "$value" != "!" ]; then
+            config+="$(echo "$param_info" | cut -d ':' -f 1) $value\n"
+        fi
         echo >&2
     done
     echo -e "$config" >sshd_config_generated.txt
@@ -81,7 +84,6 @@ generate_config() {
     #     echo "Error: There is a problem with the generated configuration. Please check sshd_config_generated.txt."
     #     exit 1
     # fi
-
 }
 
 # Function to restart SSH based on the Linux distribution
@@ -108,7 +110,10 @@ restart_ssh() {
 main() {
     echo -e "${bold_blue}SSH Server Configuration Generator${reset}"
     echo -e "This script will help you generate an SSH server configuration."
-    echo -e "You can press Enter for each parameter to use the recommended value."
+    echo -e ""
+    echo -e "${bold_blue}How It Works :${reset}"
+    echo -e "- Press 'Enter' for each parameter to use the recommended value."
+    echo -e "- Press '!' to skip a parameter (it will not be added to the configuration)."
     echo -e ""
     choose_params_file
     read_params

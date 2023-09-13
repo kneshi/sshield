@@ -1,4 +1,4 @@
-# ANSSI : Agence nationale de la sécurité des systèmes d'information
+# ANSSI : Agence nationale de la sécurité des systèmes d'information (WARNING TRASH DATA)
 StrictHostKeyChecking: Prompt user for host key validation: ask
 StrictModes: Verify file modes and permissions: yes
 Ciphers: Supported encryption ciphers: aes256-ctr, aes192-ctr, aes128-ctr

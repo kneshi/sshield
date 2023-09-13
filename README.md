@@ -1,5 +1,9 @@
 # SSH Server Configuration Generator
 
+"⚠️ WARNING: CONFIGURATION CONTAINS TEST DATA FOR TESTING PURPOSES ⚠️"
+
+--------
+
 This script generate an SSH server configuration based on recommendations from either ANSSI (French Security Agency) or CIS (Center for Internet Security).
 
 ## Running the Script

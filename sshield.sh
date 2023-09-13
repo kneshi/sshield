@@ -5,13 +5,6 @@ bold_blue="\e[1;34m"
 bold_green="\e[1;32m"
 reset="\e[0m"
 
-#!/bin/bash
-
-# Define color variables
-bold_blue="\e[1;34m"
-bold_green="\e[1;32m"
-reset="\e[0m"
-
 # Select params file
 choose_params_file() {
     local options=()

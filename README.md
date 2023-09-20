@@ -1,7 +1,6 @@
 # SSH Server Configuration Generator
 
-⚠️ WARNING: CONFIGURATION CONTAINS RANDOM DATA FOR TESTING PURPOSES ONLY ⚠️
-
+⚠️ WARNING: CONFIGURATION CONTAINS RANDOM DATA FOR TESTING PURPOSES ONLY and SSH configuration depends on various factors including the specific use case, network environment, and organizational policies ⚠️
 --------
 
 This script generate an SSH server configuration based on recommendations from either ANSSI (French Security Agency) or CIS (Center for Internet Security).
@@ -28,6 +27,7 @@ Optionally, you can choose to overwrite `/etc/ssh/sshd_config` and restart the S
 ## Todo
 
 - [ ] populate configs files
+- [ ] add descriptions as comment inside the sshd_config
 - [x] add an options to skip and go to next 
 - [ ] test /usr/sbin/sshd -t -f
 - [ ] set mode and ownership on the sshd_config file if pushed to prod (root:root and 0600)

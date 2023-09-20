@@ -1,22 +1,21 @@
-# ANSSI : Agence nationale de la sécurité des systèmes d'information (WARNING TRASH DATA)
-StrictHostKeyChecking: Prompt user for host key validation: ask
-StrictModes: Verify file modes and permissions: yes
-Ciphers: Supported encryption ciphers: aes256-ctr, aes192-ctr, aes128-ctr
-MACs: Supported message authentication codes: hmac-sha2-512-etm, hmac-sha2-256-etm, hmac-sha1-etm
-MACs: Supported message authentication codes for older versions: hmac-sha2-512, hmac-sha2-256, hmac-sha1
-UsePrivilegeSeparation: Enable privilege separation with sandboxing: sandbox
-Match group sftp-users: Match users in 'sftp-users' group for SFTP access
-ForceCommand: Force use of internal-sftp for SFTP
-ChrootDirectory: Set chroot directory to /sftp-home/%u
-PermitEmptyPasswords: Allow empty passwords: no
-MaxAuthTries: Maximum authentication attempts per connection: 2
-LoginGraceTime: Timeframe for authentication (seconds): 30
-PermitRootLogin: Allow remote access for root: no
-PrintLastLog: Display last login details: yes
-PermitUserEnvironment: Allow user environment modifications through sshd: no
-AcceptEnv: List of user-alterable environment variables
-ListenAddress: Listening address and port: A.B.C.D:26
-AllowTcpForwarding: Enable or disable server-side forwarding: no
-X11Forwarding: Enable or disable X11 forwarding: no
-ForwardX11Trusted: Enable or disable trusted X11 forwarding: no
-VerifyHostKeyDNS: Perform DNS fingerprint validation for ssh client: ask
+# ANSSI : Agence nationale de la sécurité des systèmes d'information
+Protocol:Specifies the SSH protocol version to use:2
+Banner:Contents sent to the remote user before authentication is allowed (Don't forget to create file!):/etc/ssh/banner 
+StrictHostKeyChecking:Determines whether to enforce explicit validation of the host key by the user:ask
+StrictModes:Ensures correctness of file modes and permissions prior to session opening:yes
+Ciphers:Specifies available encryption algorithms (AES128-CTR, AES192-CTR, AES256-CTR):aes256-ctr,aes192-ctr,aes128-ctr
+MACs:Defines available integrity mechanisms (HMAC-SHA1, HMAC-SHA256, HMAC-SHA512):hmac-sha2-512-etm,hmac-sha2-256-etm,hmac-sha1-etm
+UsePrivilegeSeparation:Enables privilege separation with sandboxing (preferred if available):sandbox
+PermitEmptyPasswords:Disallows access to accounts with empty passwords:no
+MaxAuthTries:Limits authentication attempts per connection (greater than 1, use caution):2
+LoginGraceTime:Sets login grace time in seconds:30
+AllowAgentForwarding:Allows ssh-agent forwarding for secure key authentication across hosts:yes
+PermitRootLogin:Permits remote access for the root account:no
+PrintLastLog:Displays last connection details upon user login:yes
+PermitUserEnvironment:Allows/denies environment modification through the sshd service by default:no
+AllowTcpForwarding:Disables flow forwarding features unless duly justified:no
+X11Forwarding:Disables X11 forwarding by default for enhanced security:no
+ForwardX11Trusted:If X11 is required, disables trusted X11 forwarding in SSH client configuration:no
+VerifyHostKeyDNS:Enables DNS fingerprint validation:ask
+AllowUsers:WARNING! SKip if you are not sure. Specify a list of authorized SSH users (eg. USER@HOST USER2@SUBNET/CIDR):
+AllowGroups:WARNING! Skip if you are not sure. Specify a list of authorized SSH groups (eg. GROUP@HOST GROUP2@SUBNET/CIDR):

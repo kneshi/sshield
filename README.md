@@ -1,6 +1,6 @@
 # SSH Server Configuration Generator
 
-⚠️ WARNING: CONFIGURATION CONTAINS RANDOM DATA FOR TESTING PURPOSES ONLY and SSH configuration depends on various factors including the specific use case, network environment, and organizational policies ⚠️
+⚠️ WARNING: Configuration contains random data for testing purposes only. SSH configuration depends on various factors including the specific use case, network environment, and organizational policies, so, use this script with care. ⚠️
 --------
 
 This script generate an SSH server configuration based on recommendations from either ANSSI (French Security Agency) or CIS (Center for Internet Security).

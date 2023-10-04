@@ -1,0 +1,63 @@
+Include /etc/ssh/sshd_config.d/*.conf
+
+# Specifies the SSH protocol version to use
+Protocol 2
+
+# Contents sent to the remote user before authentication is allowed (Don't forget to create file!)
+Banner /etc/ssh/banner 
+
+# Determines whether to enforce explicit validation of the host key by the user
+StrictHostKeyChecking ask
+
+# Ensures correctness of file modes and permissions prior to session opening
+StrictModes yes
+
+# Specifies available encryption algorithms (AES128-CTR, AES192-CTR, AES256-CTR)
+Ciphers aes256-ctr,aes192-ctr,aes128-ctr
+
+# Defines available integrity mechanisms (HMAC-SHA1, HMAC-SHA256, HMAC-SHA512)
+MACs hmac-sha2-512-etm,hmac-sha2-256-etm,hmac-sha1-etm
+
+# Enables privilege separation with sandboxing (preferred if available)
+UsePrivilegeSeparation sandbox
+
+# Disallows access to accounts with empty passwords
+PermitEmptyPasswords no
+
+# Limits authentication attempts per connection (greater than 1, use caution)
+MaxAuthTries 2
+
+# Sets login grace time in seconds
+LoginGraceTime 30
+
+# Allows ssh-agent forwarding for secure key authentication across hosts
+AllowAgentForwarding yes
+
+# Permits remote access for the root account
+PermitRootLogin no
+
+# Displays last connection details upon user login
+PrintLastLog yes
+
+# Allows/denies environment modification through the sshd service by default
+PermitUserEnvironment no
+
+# Disables flow forwarding features unless duly justified
+AllowTcpForwarding no
+
+# Disables X11 forwarding by default for enhanced security
+X11Forwarding no
+
+# If X11 is required, disables trusted X11 forwarding in SSH client configuration
+ForwardX11Trusted no
+
+# Enables DNS fingerprint validation
+VerifyHostKeyDNS ask
+
+# WARNING! SKip if you are not sure. Specify a list of authorized SSH users (eg. USER@HOST USER2@SUBNET/CIDR)
+AllowUsers  xx
+
+# WARNING! Skip if you are not sure. Specify a list of authorized SSH groups (eg. GROUP@HOST GROUP2@SUBNET/CIDR)
+AllowGroups  xx
+
+

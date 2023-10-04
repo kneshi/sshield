@@ -78,11 +78,12 @@ generate_config() {
     for param_info in "${params[@]}"; do
         local value=$(create_field "$param_info")
         if [ "$value" != "!" ]; then
-            config+="$(echo "$param_info" | cut -d ':' -f 1) $value\n"
+            config+="$(echo "# $param_info" | cut -d ':' -f 2)"
+            config+="$(echo "$param_info" | cut -d ':' -f 1) $value\n\n"
         fi
         echo >&2
     done
-    echo -e "$config" >sshd_config_generated.txt
+    echo -e "$config" >sshd_config_generated.md
 
     # Check the generated config - TODO : check this function
     # if ! /usr/sbin/sshd -t -f sshd_config_generated.txt; then

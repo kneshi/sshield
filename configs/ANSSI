@@ -17,5 +17,5 @@ AllowTcpForwarding:Disables flow forwarding features unless duly justified:no
 X11Forwarding:Disables X11 forwarding by default for enhanced security:no
 ForwardX11Trusted:If X11 is required, disables trusted X11 forwarding in SSH client configuration:no
 VerifyHostKeyDNS:Enables DNS fingerprint validation:ask
-AllowUsers:WARNING! SKip if you are not sure. Specify a list of authorized SSH users (eg. USER@HOST USER2@SUBNET/CIDR):
-AllowGroups:WARNING! Skip if you are not sure. Specify a list of authorized SSH groups (eg. GROUP@HOST GROUP2@SUBNET/CIDR):
+AllowUsers:WARNING! SKip if you are not sure. Specify a list of authorized SSH users (eg. USER@HOST USER2@SUBNET/CIDR): xx
+AllowGroups:WARNING! Skip if you are not sure. Specify a list of authorized SSH groups (eg. GROUP@HOST GROUP2@SUBNET/CIDR): xx

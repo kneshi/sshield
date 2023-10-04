@@ -14,7 +14,7 @@ choose_params_file() {
     local files=(configs/*)
     for i in "${!files[@]}"; do
         local filename=$(basename "${files[i]}")
-        local comment=$(sed -n '1s/^# *//p' "${files[i]}") # Extract and remove leading '#' from comment
+        local comment=$(sed -n '1s/^# *//p' "${files[i]}")
         options+=("$comment")
         echo -e "[$i] ${bold_blue}$comment${reset}"
     done
@@ -40,6 +40,13 @@ choose_params_file() {
 read_params() {
     if [ -f "$params_file" ]; then
         mapfile -t params < <(sed '/^#/d' "$params_file") # Ignore lines starting with #
+    
+        for line in "${params[@]}"; do
+            if [[ ! $line =~ ^[^:]+:[^:]+:[^:]+$ ]]; then 
+                echo "Invalid format in params files $params_file"
+                exit 1
+            fi
+        done
     else
         echo "Parameter file '$params_file' not found."
         exit 1

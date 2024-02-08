@@ -8,7 +8,7 @@ reset="\e[0m"
 
 # Function to check if sudo command is available and if the user has sudo privileges
 check_sudo() {
-    if ! command -v sudo &> /dev/null; then
+    if ! command -v sudo &>/dev/null; then
         echo -e "${bold_red}Error: sudo command not found.${reset}"
         exit 1
     fi
@@ -19,19 +19,27 @@ check_sudo() {
     fi
 }
 
-
 # Function to check if sshd command is available and install OpenSSH server if not found
 check_sshd() {
-    if ! command -v sshd &> /dev/null; then
+    if ! command -v sshd &>/dev/null; then
         echo -e "${bold_red}Error: sshd command not found.${reset}"
         read -p "Do you want to install OpenSSH server? (y/n) > " -r choice
         if [[ $choice =~ ^[Yy]$ ]]; then
-            if command -v apt-get &> /dev/null; then
-                sudo apt-get install openssh-server || { echo -e "${bold_red}Error: Failed to install OpenSSH server.${reset}"; exit 1; }
-            elif command -v yum &> /dev/null; then
-                sudo yum install openssh-server || { echo -e "${bold_red}Error: Failed to install OpenSSH server.${reset}"; exit 1; }
-            elif command -v dnf &> /dev/null; then
-                sudo dnf install openssh-server || { echo -e "${bold_red}Error: Failed to install OpenSSH server.${reset}"; exit 1; }
+            if command -v apt-get &>/dev/null; then
+                sudo apt-get install openssh-server || {
+                    echo -e "${bold_red}Error: Failed to install OpenSSH server.${reset}"
+                    exit 1
+                }
+            elif command -v yum &>/dev/null; then
+                sudo yum install openssh-server || {
+                    echo -e "${bold_red}Error: Failed to install OpenSSH server.${reset}"
+                    exit 1
+                }
+            elif command -v dnf &>/dev/null; then
+                sudo dnf install openssh-server || {
+                    echo -e "${bold_red}Error: Failed to install OpenSSH server.${reset}"
+                    exit 1
+                }
             else
                 echo -e "${bold_red}Error: Unsupported package manager.${reset}"
                 exit 1
@@ -78,9 +86,9 @@ select_params_file() {
 read_params() {
     if [ -f "$params_file" ]; then
         mapfile -t params < <(sed '/^#/d' "$params_file") # Ignore lines starting with #
-    
+
         for line in "${params[@]}"; do
-            if [[ ! $line =~ ^[^:]+:[^:]+:[^:]+$ ]]; then 
+            if [[ ! $line =~ ^[^:]+:[^:]+:[^:]+$ ]]; then
                 echo "Invalid format in params files $params_file"
                 exit 1
             fi
@@ -127,10 +135,10 @@ generate_config() {
 
 # Function to check the generated configuration for errors
 check_generated_config() {
-        if ! sshd -t -f sshd_config_generated.md; then
-            echo -e "${bold_red}Error: There is a problem with the generated configuration. Please check sshd_config_generated.md${reset}"
-            exit 1
-        fi
+    if ! sshd -t -f sshd_config_generated.md; then
+        echo -e "${bold_red}Error: There is a problem with the generated configuration. Please check sshd_config_generated.md${reset}"
+        exit 1
+    fi
 }
 
 # Function to restart SSH based on the Linux distribution
@@ -186,7 +194,6 @@ main() {
     if [[ $choice =~ ^[Yy]$ ]]; then
         check_generated_config
     fi
-    
 
     read -p "Do you want to overwrite /etc/ssh/sshd_config and restart SSH? (y/n) > " -r choice
     if [[ $choice =~ ^[Yy]$ ]]; then
@@ -204,7 +211,6 @@ main() {
         sudo chmod 0600 /etc/ssh/sshd_config
         echo -e "Ownership and permissions set on /etc/ssh/sshd_config."
     fi
-
 
     echo -e ""
     echo -e "${bold_blue}Great! Enjoy a more secure SSH server!${reset}"

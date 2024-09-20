@@ -183,19 +183,36 @@ validate_input() {
                 return
             fi
             ;;
-        MaxAuthTries | LoginGraceTime)
-            if ! [[ "$value" =~ ^[1-9][0-9]*$ ]]; then
-                echo -e "${bold_red}Error: $param_name must be a positive integer. Using recommended value.${reset}" >&2
+        MaxAuthTries)
+            if ! [[ "$value" =~ ^[1-9][0-9]*$ ]] || [ "$value" -gt 6 ]; then
+                echo -e "${bold_red}Error: MaxAuthTries must be a positive integer not greater than 6. Using recommended value.${reset}" >&2
                 echo "$recommendation"
                 return
             fi
             ;;
-        PermitRootLogin | PasswordAuthentication | X11Forwarding)
-            if [[ ! "$value" =~ ^(yes|no|prohibit-password)$ ]]; then
-                echo -e "${bold_red}Error: Invalid value for $param_name. Using recommended value.${reset}" >&2
+        LoginGraceTime)
+            if ! [[ "$value" =~ ^[1-9][0-9]*$ ]] || [ "$value" -gt 120 ]; then
+                echo -e "${bold_red}Error: LoginGraceTime must be a positive integer not greater than 120. Using recommended value.${reset}" >&2
                 echo "$recommendation"
                 return
             fi
+            ;;
+        PermitRootLogin)
+            if [[ ! "$value" =~ ^(yes|no|prohibit-password|forced-commands-only)$ ]]; then
+                echo -e "${bold_red}Error: Invalid value for PermitRootLogin. Using recommended value.${reset}" >&2
+                echo "$recommendation"
+                return
+            fi
+            ;;
+        PasswordAuthentication | X11Forwarding)
+            if [[ ! "$value" =~ ^(yes|no)$ ]]; then
+                echo -e "${bold_red}Error: Invalid value for $param_name. Must be 'yes' or 'no'. Using recommended value.${reset}" >&2
+                echo "$recommendation"
+                return
+            fi
+            ;;
+        *)
+            # For any other parameters, just return the input value
             ;;
     esac
 

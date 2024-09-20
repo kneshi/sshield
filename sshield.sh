@@ -58,6 +58,11 @@ select_params_file() {
 
     echo -e "Parameters available:"
     local files=(configs/*)
+    if [ ${#files[@]} -eq 0 ]; then
+        echo -e "${bold_red}Error: No configuration files found in the configs/ directory.${reset}"
+        exit 1
+    fi
+
     for i in "${!files[@]}"; do
         local filename=$(basename "${files[i]}")
         local comment=$(sed -n '1s/^# *//p' "${files[i]}")
@@ -66,18 +71,21 @@ select_params_file() {
     done
 
     echo -e ""
-    read -p "Select the option you want > " choice
-    echo -e ""
+    while true; do
+        read -p "Select the option you want > " choice
+        echo -e ""
 
-    if [[ ! $choice =~ ^[0-9]+$ ]] || ((choice < 0 || choice >= ${#options[@]})); then
-        echo -e "${bold_red}Invalid choice. Please retry with a valid option.${reset}"
-        exit 1
-    fi
+        if [[ ! $choice =~ ^[0-9]+$ ]] || ((choice < 0 || choice >= ${#options[@]})); then
+            echo -e "${bold_red}Invalid choice. Please retry with a valid option.${reset}"
+        else
+            break
+        fi
+    done
 
     params_file="${files[choice]}"
 
     if [ ! -f "$params_file" ]; then
-        echo "Parameter file '$params_file' not found..."
+        echo -e "${bold_red}Error: Parameter file '$params_file' not found...${reset}"
         exit 1
     fi
 }
@@ -113,6 +121,8 @@ create_field() {
 
     if [ -z "$value" ]; then
         value="$param_recommendation"
+    elif [ "$value" != "!" ]; then
+        value=$(validate_input "$param_name" "$value" "$param_recommendation")
     fi
 
     echo "$value"
@@ -123,14 +133,17 @@ generate_config() {
     local config=""
     config+="Include /etc/ssh/sshd_config.d/*.conf\n\n"
     for param_info in "${params[@]}"; do
+        IFS=":" read -ra param <<< "$param_info"
+        local param_name="${param[0]}"
+        local param_comment="${param[1]}"
         local value=$(create_field "$param_info")
         if [ "$value" != "!" ]; then
-            config+="# ${param_info#*:}\n"
-            config+="${param_info%%:*} $value\n\n"
+            config+="# ${param_comment}\n"
+            config+="${param_name} ${value}\n\n"
         fi
         echo >&2
     done
-    echo -e "$config" >sshd_config_generated.md
+    echo -e "$config" > sshd_config_generated.md
 }
 
 # Function to check the generated configuration for errors
@@ -190,15 +203,21 @@ main() {
     echo -e "Configuration saved to ${bold_blue}sshd_config_generated.md${reset}"
 
     read -p "Do you want to check the generated config file? (You probably need to run this script with sudo if your user does not have read access to hostkeys) (y/n) > " -r choice
-    # echo -e "${bold_red}You probably need to run this script with sudo if your user does not have read access to hostkeys.${reset}"
     if [[ $choice =~ ^[Yy]$ ]]; then
         check_generated_config
     fi
+
+    compare_configs
 
     read -p "Do you want to overwrite /etc/ssh/sshd_config and restart SSH? (y/n) > " -r choice
     if [[ $choice =~ ^[Yy]$ ]]; then
         check_sudo
         check_sshd
+        
+        # Create a backup of the original config
+        sudo cp /etc/ssh/sshd_config /etc/ssh/sshd_config.backup.$(date +%Y%m%d%H%M%S)
+        echo -e "Backup of original configuration created."
+        
         sudo cp sshd_config_generated.md /etc/ssh/sshd_config
         restart_ssh
         echo -e "SSH configuration updated and SSH server restarted."
@@ -218,3 +237,42 @@ main() {
 }
 
 main
+validate_input() {
+    local param_name="$1"
+    local value="$2"
+    local recommendation="$3"
+
+    case "$param_name" in
+        Protocol)
+            if [[ ! "$value" =~ ^[12]$ ]]; then
+                echo -e "${bold_red}Error: Invalid Protocol version. Using recommended value.${reset}"
+                echo "$recommendation"
+                return
+            fi
+            ;;
+        MaxAuthTries)
+            if ! [[ "$value" =~ ^[1-9][0-9]*$ ]]; then
+                echo -e "${bold_red}Error: MaxAuthTries must be a positive integer. Using recommended value.${reset}"
+                echo "$recommendation"
+                return
+            fi
+            ;;
+        LoginGraceTime)
+            if ! [[ "$value" =~ ^[1-9][0-9]*$ ]]; then
+                echo -e "${bold_red}Error: LoginGraceTime must be a positive integer. Using recommended value.${reset}"
+                echo "$recommendation"
+                return
+            fi
+            ;;
+    esac
+
+    echo "$value"
+}
+compare_configs() {
+    if [ -f /etc/ssh/sshd_config ]; then
+        echo -e "\nComparing generated config with current config:"
+        diff -u /etc/ssh/sshd_config sshd_config_generated.md
+    else
+        echo -e "\nCurrent SSH config file not found. Skipping comparison."
+    fi
+}

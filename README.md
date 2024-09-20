@@ -60,6 +60,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## Todo
 
+- [x] Push to git
 - [ ] Add more comprehensive logging
 - [ ] Implement unit tests for the script functions
 - [ ] Add support for more Linux distributions

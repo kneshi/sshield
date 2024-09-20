@@ -189,8 +189,8 @@ main() {
     echo -e "This script will guide you through the process of generating a secure SSH server configuration."
     echo -e "Please follow the prompts and provide the necessary information."
     echo -e ""
-    # check_sudo
-    # check_sshd
+    check_sudo
+    check_sshd
     echo -e ""
     echo -e "${bold_blue}How This Script Works :${reset}"
     echo -e "- Press 'Enter' for each parameter to use the recommended value."
@@ -198,11 +198,10 @@ main() {
     echo -e ""
     select_params_file
     read_params
-    local config=$(generate_config)
-    echo -e "${bold_green}$config${reset}"
+    generate_config
     echo -e "Configuration saved to ${bold_blue}sshd_config_generated.md${reset}"
 
-    read -p "Do you want to check the generated config file? (You probably need to run this script with sudo if your user does not have read access to hostkeys) (y/n) > " -r choice
+    read -p "Do you want to check the generated config file? (y/n) > " -r choice
     if [[ $choice =~ ^[Yy]$ ]]; then
         check_generated_config
     fi
@@ -211,9 +210,6 @@ main() {
 
     read -p "Do you want to overwrite /etc/ssh/sshd_config and restart SSH? (y/n) > " -r choice
     if [[ $choice =~ ^[Yy]$ ]]; then
-        check_sudo
-        check_sshd
-        
         # Create a backup of the original config
         sudo cp /etc/ssh/sshd_config /etc/ssh/sshd_config.backup.$(date +%Y%m%d%H%M%S)
         echo -e "Backup of original configuration created."
@@ -225,7 +221,6 @@ main() {
 
     read -p "Do you want to set ownership (root:root) and permissions (0600) on /etc/ssh/sshd_config? (y/n) > " -r set_permissions
     if [[ $set_permissions =~ ^[Yy]$ ]]; then
-        check_sudo
         sudo chown root:root /etc/ssh/sshd_config
         sudo chmod 0600 /etc/ssh/sshd_config
         echo -e "Ownership and permissions set on /etc/ssh/sshd_config."

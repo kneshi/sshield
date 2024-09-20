@@ -1,52 +1,42 @@
 #!/bin/bash
 
+set -euo pipefail
+
 # Define color variables
 bold_blue="\e[1;34m"
 bold_green="\e[1;32m"
 bold_red="\e[1;31m"
 reset="\e[0m"
 
+# Function to print error messages and exit
+error_exit() {
+    echo -e "${bold_red}Error: $1${reset}" >&2
+    exit 1
+}
+
 # Function to check if sudo command is available and if the user has sudo privileges
 check_sudo() {
-    if ! command -v sudo &>/dev/null; then
-        echo -e "${bold_red}Error: sudo command not found.${reset}"
-        exit 1
-    fi
-
-    if ! sudo -n true 2>/dev/null; then
-        echo -e "${bold_red}Error: You do not have sudo privileges or a password is required (try with: sudo ./sshield.sh).${reset}"
-        exit 1
-    fi
+    command -v sudo &>/dev/null || error_exit "sudo command not found."
+    sudo -n true 2>/dev/null || error_exit "You do not have sudo privileges or a password is required (try with: sudo ./sshield.sh)."
 }
 
 # Function to check if sshd command is available and install OpenSSH server if not found
 check_sshd() {
     if ! command -v sshd &>/dev/null; then
-        echo -e "${bold_red}Error: sshd command not found.${reset}"
+        echo -e "${bold_red}Warning: sshd command not found.${reset}"
         read -p "Do you want to install OpenSSH server? (y/n) > " -r choice
         if [[ $choice =~ ^[Yy]$ ]]; then
             if command -v apt-get &>/dev/null; then
-                sudo apt-get install openssh-server || {
-                    echo -e "${bold_red}Error: Failed to install OpenSSH server.${reset}"
-                    exit 1
-                }
+                sudo apt-get update && sudo apt-get install -y openssh-server
             elif command -v yum &>/dev/null; then
-                sudo yum install openssh-server || {
-                    echo -e "${bold_red}Error: Failed to install OpenSSH server.${reset}"
-                    exit 1
-                }
+                sudo yum install -y openssh-server
             elif command -v dnf &>/dev/null; then
-                sudo dnf install openssh-server || {
-                    echo -e "${bold_red}Error: Failed to install OpenSSH server.${reset}"
-                    exit 1
-                }
+                sudo dnf install -y openssh-server
             else
-                echo -e "${bold_red}Error: Unsupported package manager.${reset}"
-                exit 1
+                error_exit "Unsupported package manager."
             fi
         else
-            echo -e "${bold_red}Error: sshd command is required.${reset}"
-            exit 1
+            error_exit "sshd command is required."
         fi
     fi
 }
@@ -58,10 +48,7 @@ select_params_file() {
 
     echo -e "Parameters available:"
     local files=(configs/*)
-    if [ ${#files[@]} -eq 0 ]; then
-        echo -e "${bold_red}Error: No configuration files found in the configs/ directory.${reset}"
-        exit 1
-    fi
+    [ ${#files[@]} -eq 0 ] && error_exit "No configuration files found in the configs/ directory."
 
     for i in "${!files[@]}"; do
         local filename=$(basename "${files[i]}")
@@ -75,36 +62,26 @@ select_params_file() {
         read -p "Select the option you want > " choice
         echo -e ""
 
-        if [[ ! $choice =~ ^[0-9]+$ ]] || ((choice < 0 || choice >= ${#options[@]})); then
-            echo -e "${bold_red}Invalid choice. Please retry with a valid option.${reset}"
-        else
+        if [[ $choice =~ ^[0-9]+$ ]] && ((choice >= 0 && choice < ${#options[@]})); then
             break
+        else
+            echo -e "${bold_red}Invalid choice. Please retry with a valid option.${reset}"
         fi
     done
 
     params_file="${files[choice]}"
-
-    if [ ! -f "$params_file" ]; then
-        echo -e "${bold_red}Error: Parameter file '$params_file' not found...${reset}"
-        exit 1
-    fi
+    [ ! -f "$params_file" ] && error_exit "Parameter file '$params_file' not found."
 }
 
 # Function to read parameters from an external file
 read_params() {
-    if [ -f "$params_file" ]; then
-        mapfile -t params < <(sed '/^#/d' "$params_file") # Ignore lines starting with #
+    [ ! -f "$params_file" ] && error_exit "Parameter file '$params_file' not found."
+    
+    mapfile -t params < <(sed '/^#/d' "$params_file") # Ignore lines starting with #
 
-        for line in "${params[@]}"; do
-            if [[ ! $line =~ ^[^:]+:[^:]+:[^:]+$ ]]; then
-                echo "Invalid format in params files $params_file"
-                exit 1
-            fi
-        done
-    else
-        echo "Parameter file '$params_file' not found."
-        exit 1
-    fi
+    for line in "${params[@]}"; do
+        [[ ! $line =~ ^[^:]+:[^:]+:[^:]+$ ]] && error_exit "Invalid format in params file $params_file"
+    done
 }
 
 # Function to create input fields for parameters
@@ -148,19 +125,12 @@ generate_config() {
 
 # Function to check the generated configuration for errors
 check_generated_config() {
-    if ! sshd -t -f sshd_config_generated.md; then
-        echo -e "${bold_red}Error: There is a problem with the generated configuration. Please check sshd_config_generated.md${reset}"
-        exit 1
-    fi
+    sshd -t -f sshd_config_generated.md || error_exit "There is a problem with the generated configuration. Please check sshd_config_generated.md"
 }
 
 # Function to check if SSH service is running
 check_ssh_service() {
-    if systemctl is-active --quiet ssh || systemctl is-active --quiet sshd; then
-        return 0
-    else
-        return 1
-    fi
+    systemctl is-active --quiet ssh || systemctl is-active --quiet sshd
 }
 
 # Function to restart SSH based on the Linux distribution
@@ -173,32 +143,72 @@ restart_ssh() {
         source /etc/os-release
         case "$ID" in
         debian | ubuntu)
-            if ! sudo service ssh restart; then
-                echo -e "${bold_red}Failed to restart SSH. You may need to do it manually.${reset}"
-            fi
+            sudo service ssh restart || error_exit "Failed to restart SSH. You may need to do it manually."
             ;;
         centos | rhel | fedora)
-            if ! sudo systemctl restart sshd; then
-                echo -e "${bold_red}Failed to restart SSH. You may need to do it manually.${reset}"
-            fi
+            sudo systemctl restart sshd || error_exit "Failed to restart SSH. You may need to do it manually."
             ;;
         alpine)
-            if ! sudo rc-service sshd restart; then
-                echo -e "${bold_red}Failed to restart SSH. You may need to do it manually.${reset}"
-            fi
+            sudo rc-service sshd restart || error_exit "Failed to restart SSH. You may need to do it manually."
             ;;
         *)
-            echo -e "${bold_red}Unsupported Linux distribution. You may need to manually restart SSH.${reset}"
+            error_exit "Unsupported Linux distribution. You may need to manually restart SSH."
             ;;
         esac
     else
-        echo -e "${bold_red}Unable to determine the Linux distribution. You may need to manually restart SSH.${reset}"
+        error_exit "Unable to determine the Linux distribution. You may need to manually restart SSH."
     fi
 
-    if check_ssh_service; then
-        echo -e "${bold_green}SSH service is now running.${reset}"
+    check_ssh_service && echo -e "${bold_green}SSH service is now running.${reset}" || error_exit "Failed to start SSH service. Please check your system logs."
+}
+
+# Function to validate input
+validate_input() {
+    local param_name="$1"
+    local value="$2"
+    local recommendation="$3"
+
+    case "$param_name" in
+        Port)
+            if ! [[ "$value" =~ ^[1-9][0-9]{0,4}$ ]] || [ "$value" -gt 65535 ]; then
+                echo -e "${bold_red}Error: Invalid port number. Using recommended value.${reset}" >&2
+                echo "$recommendation"
+                return
+            fi
+            ;;
+        Protocol)
+            if [[ ! "$value" =~ ^[12]$ ]]; then
+                echo -e "${bold_red}Error: Invalid Protocol version. Using recommended value.${reset}" >&2
+                echo "$recommendation"
+                return
+            fi
+            ;;
+        MaxAuthTries | LoginGraceTime)
+            if ! [[ "$value" =~ ^[1-9][0-9]*$ ]]; then
+                echo -e "${bold_red}Error: $param_name must be a positive integer. Using recommended value.${reset}" >&2
+                echo "$recommendation"
+                return
+            fi
+            ;;
+        PermitRootLogin | PasswordAuthentication | X11Forwarding)
+            if [[ ! "$value" =~ ^(yes|no|prohibit-password)$ ]]; then
+                echo -e "${bold_red}Error: Invalid value for $param_name. Using recommended value.${reset}" >&2
+                echo "$recommendation"
+                return
+            fi
+            ;;
+    esac
+
+    echo "$value"
+}
+
+# Function to compare configs
+compare_configs() {
+    if [ -f /etc/ssh/sshd_config ]; then
+        echo -e "\nComparing generated config with current config:"
+        diff -u /etc/ssh/sshd_config sshd_config_generated.md || true
     else
-        echo -e "${bold_red}Failed to start SSH service. Please check your system logs.${reset}"
+        echo -e "\nCurrent SSH config file not found. Skipping comparison."
     fi
 }
 
@@ -211,7 +221,7 @@ main() {
     check_sudo
     check_sshd
     echo -e ""
-    echo -e "${bold_blue}How This Script Works :${reset}"
+    echo -e "${bold_blue}How This Script Works:${reset}"
     echo -e "- Press 'Enter' for each parameter to use the recommended value."
     echo -e "- Press '!' to skip a parameter (it will not be added to the configuration)."
     echo -e ""
@@ -221,16 +231,13 @@ main() {
     echo -e "Configuration saved to ${bold_blue}sshd_config_generated.md${reset}"
 
     read -p "Do you want to check the generated config file? (y/n) > " -r choice
-    if [[ $choice =~ ^[Yy]$ ]]; then
-        check_generated_config
-    fi
+    [[ $choice =~ ^[Yy]$ ]] && check_generated_config
 
     compare_configs
 
     read -p "Do you want to overwrite /etc/ssh/sshd_config and restart SSH? (y/n) > " -r choice
     if [[ $choice =~ ^[Yy]$ ]]; then
-        # Create a backup of the original config
-        sudo cp /etc/ssh/sshd_config /etc/ssh/sshd_config.backup.$(date +%Y%m%d%H%M%S)
+        sudo cp /etc/ssh/sshd_config "/etc/ssh/sshd_config.backup.$(date +%Y%m%d%H%M%S)"
         echo -e "Backup of original configuration created."
         
         sudo cp sshd_config_generated.md /etc/ssh/sshd_config
@@ -251,42 +258,3 @@ main() {
 }
 
 main
-validate_input() {
-    local param_name="$1"
-    local value="$2"
-    local recommendation="$3"
-
-    case "$param_name" in
-        Protocol)
-            if [[ ! "$value" =~ ^[12]$ ]]; then
-                echo -e "${bold_red}Error: Invalid Protocol version. Using recommended value.${reset}"
-                echo "$recommendation"
-                return
-            fi
-            ;;
-        MaxAuthTries)
-            if ! [[ "$value" =~ ^[1-9][0-9]*$ ]]; then
-                echo -e "${bold_red}Error: MaxAuthTries must be a positive integer. Using recommended value.${reset}"
-                echo "$recommendation"
-                return
-            fi
-            ;;
-        LoginGraceTime)
-            if ! [[ "$value" =~ ^[1-9][0-9]*$ ]]; then
-                echo -e "${bold_red}Error: LoginGraceTime must be a positive integer. Using recommended value.${reset}"
-                echo "$recommendation"
-                return
-            fi
-            ;;
-    esac
-
-    echo "$value"
-}
-compare_configs() {
-    if [ -f /etc/ssh/sshd_config ]; then
-        echo -e "\nComparing generated config with current config:"
-        diff -u /etc/ssh/sshd_config sshd_config_generated.md || true
-    else
-        echo -e "\nCurrent SSH config file not found. Skipping comparison."
-    fi
-}

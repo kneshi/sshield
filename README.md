@@ -1,7 +1,17 @@
 # SSHield
-⚠️ WARNING: Configuration contains random data for testing purposes only. SSH configuration depends on various factors including the specific use case, network environment, and organizational policies, so, use this script with care. ⚠️
 
-SSHield is a script that helps you secure your SSH server by generating a configuration based on your preferences.
+⚠️ **WARNING**: Configuration contains random data for testing purposes only. SSH configuration depends on various factors including the specific use case, network environment, and organizational policies, so use this script with care. ⚠️
+
+SSHield is a Bash script that helps you secure your SSH server by generating a configuration based on your preferences and best practices.
+
+## Features
+
+- Interactive configuration generation
+- Support for multiple configuration templates
+- Validation of user input
+- Automatic backup of existing SSH configuration
+- Option to set correct ownership and permissions on the SSH config file
+- Comparison between current and generated configurations
 
 ## Sources
 
@@ -14,17 +24,36 @@ The recommendations for the parameter values are based on the following sources:
 
 SSHield reads parameter information from the `configs/` directory. Each parameter consists of a name, comment, and recommended value. You will be prompted to enter your preferred value for each parameter.
 
-The generated configuration is saved to `sshd_config_generated.txt`. Optionally, you can choose to overwrite `/etc/ssh/sshd_config` and restart the SSH server.
+The generated configuration is saved to `sshd_config_generated.md`. Optionally, you can choose to overwrite `/etc/ssh/sshd_config` and restart the SSH server.
 
 ## Usage
 
 1. Clone the repository: `git clone https://github.com/kneshi/sshield.git`
 2. Navigate to the cloned directory: `cd sshield`
-3. Run the script: `./sshield.sh`
+3. Make the script executable: `chmod +x sshield.sh`
+4. Run the script: `./sshield.sh`
+
+## Requirements
+
+- Bash shell
+- sudo privileges (for some operations)
+- OpenSSH server installed (the script can help you install it if it's missing)
+
+## Contributing
+
+Contributions are welcome! Please feel free to submit a Pull Request.
+
+## License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
 ## Todo
 
-- [ ] Populate configs files
-- [ ] Test /usr/sbin/sshd -t -f
-- [ ] Set mode and ownership on the sshd_config file if pushed to prod (root:root and 0600)
-- [ ] Add a mandatory option to be sure we don't forget a parameter
+- [x] Populate configs files
+- [x] Test /usr/sbin/sshd -t -f
+- [x] Set mode and ownership on the sshd_config file if pushed to prod (root:root and 0600)
+- [x] Add a mandatory option to be sure we don't forget a parameter
+- [ ] Add more comprehensive error handling and logging
+- [ ] Implement unit tests for the script functions
+- [ ] Add support for more Linux distributions
+- [ ] Create a configuration file for the script itself (e.g., default paths, behavior options)

@@ -13,5 +13,5 @@ PrintLastLog:Displays last connection details upon user login:yes
 PermitUserEnvironment:Allows/denies environment modification through the sshd service by default:no
 AllowTcpForwarding:Disables flow forwarding features unless duly justified:no
 X11Forwarding:Disables X11 forwarding by default for enhanced security:no
-AllowUsers:WARNING! Skip if you are not sure. Specify a list of authorized SSH users (eg. USER@HOST USER2@SUBNET/CIDR):
-AllowGroups:WARNING! Skip if you are not sure. Specify a list of authorized SSH groups (eg. GROUP@HOST GROUP2@SUBNET/CIDR):
+AllowUsers:WARNING! Skip if you are not sure. Specify a list of authorized SSH users (eg. USER@HOST USER2@SUBNET/CIDR):none
+AllowGroups:WARNING! Skip if you are not sure. Specify a list of authorized SSH groups (eg. GROUP@HOST GROUP2@SUBNET/CIDR):none

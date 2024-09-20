@@ -154,8 +154,21 @@ check_generated_config() {
     fi
 }
 
+# Function to check if SSH service is running
+check_ssh_service() {
+    if systemctl is-active --quiet ssh || systemctl is-active --quiet sshd; then
+        return 0
+    else
+        return 1
+    fi
+}
+
 # Function to restart SSH based on the Linux distribution
 restart_ssh() {
+    if ! check_ssh_service; then
+        echo -e "${bold_red}SSH service is not running. Starting it now.${reset}"
+    fi
+
     if [ -f /etc/os-release ]; then
         source /etc/os-release
         case "$ID" in
@@ -180,6 +193,12 @@ restart_ssh() {
         esac
     else
         echo -e "${bold_red}Unable to determine the Linux distribution. You may need to manually restart SSH.${reset}"
+    fi
+
+    if check_ssh_service; then
+        echo -e "${bold_green}SSH service is now running.${reset}"
+    else
+        echo -e "${bold_red}Failed to start SSH service. Please check your system logs.${reset}"
     fi
 }
 

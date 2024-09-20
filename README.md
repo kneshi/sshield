@@ -1,6 +1,6 @@
 # SSHield
 
-SSHield is a Bash script that helps you secure your SSH server by generating a configuration based on your preferences and best practices.
+SSHield is a Bash script that helps you secure your SSH server by generating a configuration based on your preferences and best practices. (btw this script is also a playground for testing llm)
 
 ⚠️ **WARNING**: Always review the generated configuration before applying it to your system. SSH configuration depends on various factors including the specific use case, network environment, and organizational policies. Use this script with care. ⚠️
 

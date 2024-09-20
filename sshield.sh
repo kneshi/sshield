@@ -71,17 +71,28 @@ select_params_file() {
 
     params_file="${files[choice]}"
     [ ! -f "$params_file" ] && error_exit "Parameter file '$params_file' not found."
+
+    echo "Debug: Selected params_file: $params_file"
 }
 
 # Function to read parameters from an external file
 read_params() {
     [ ! -f "$params_file" ] && error_exit "Parameter file '$params_file' not found."
     
+    echo "Debug: Reading params from file: $params_file"
+    
     mapfile -t params < <(sed '/^#/d' "$params_file") # Ignore lines starting with #
 
+    echo "Debug: Number of params read: ${#params[@]}"
+
     for line in "${params[@]}"; do
-        [[ ! $line =~ ^[^:]+:[^:]+:[^:]+$ ]] && error_exit "Invalid format in params file $params_file"
+        if [[ ! $line =~ ^[^:]+:[^:]+:[^:]+$ ]]; then
+            echo "Debug: Invalid line format: $line"
+            error_exit "Invalid format in params file $params_file"
+        fi
     done
+
+    echo "Debug: Params read successfully"
 }
 
 # Function to create input fields for parameters

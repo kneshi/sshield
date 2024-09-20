@@ -266,7 +266,7 @@ validate_input() {
 compare_configs() {
     if [ -f /etc/ssh/sshd_config ]; then
         echo -e "\nComparing generated config with current config:"
-        diff -u /etc/ssh/sshd_config sshd_config_generated.md
+        diff -u /etc/ssh/sshd_config sshd_config_generated.md || true
     else
         echo -e "\nCurrent SSH config file not found. Skipping comparison."
     fi
